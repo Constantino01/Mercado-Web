@@ -9,7 +9,9 @@ import Descontos from "./pages/public/catalogo/descontos";
 import Produto from "./pages/public/catalogo/produto";
 //Loja
 import Inicio from "./pages/public/loja/index";
+import HistoricoCliente from "./pages/public/loja/clientHistory"; 
 //Pagamentos
+import Sucesso from "./pages/public/pagamento/success";
 import Checkout from "./pages/public/pagamento/checkout";
 
 
@@ -59,6 +61,8 @@ export default function App() {
             <Route path="/loja/promocoes" element={<Descontos />} />
             <Route path="/loja/checkout" element={<Checkout />} />
             <Route path="/loja/catalogo/produto/:id" element={<Produto />} />
+            <Route path="/loja/sucesso" element={<Sucesso />} />
+            <Route path="/loja/historico" element={<HistoricoCliente />} />
           </Route>
 
           {/* Management Routes */}

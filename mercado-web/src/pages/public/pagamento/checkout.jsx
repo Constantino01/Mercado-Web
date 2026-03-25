@@ -1,17 +1,88 @@
 import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { useCart } from '../../../context/public/CartContext'; // Ajusta o caminho se necessário
+import { useCart } from '../../../context/public/CartContext';
+import { apiCRUD } from '../../../utils/api'; 
 
 export default function Checkout() {
-  const [metodoPagamento, setMetodoPagamento] = useState('mbway');
   const navigate = useNavigate();
-  
-  // Puxar os dados do carrinho da sessão
-  const { cartItems, cartCount, cartTotal } = useCart();
+  const { cartItems, cartCount, cartTotal, clearCart } = useCart();
+
+  const [metodoPagamento, setMetodoPagamento] = useState('mbway');
+  const [loading, setLoading] = useState(false);
+  const [erro, setErro] = useState('');
+
+  // Adicionado confirmEmail
+  const [formData, setFormData] = useState({
+    nome: '',
+    email: '',
+    confirmEmail: '', 
+    telemovel: '', 
+    morada: '',
+    codigoPostal: '',
+    localidade: ''
+  });
 
   const formatarValor = (valor) => Number(valor || 0).toFixed(2);
 
-  // Se o cliente chegar aqui com o carrinho vazio, mandamos de volta para a loja
+  const handleInputChange = (e) => {
+    const { name, value } = e.target;
+    setFormData(prev => ({ ...prev, [name]: value }));
+  };
+
+  const handleFinalizarEncomenda = async () => {
+    if (!formData.email || !formData.telemovel) {
+      setErro('Por favor, preencha o Email e o Telemóvel.');
+      return;
+    }
+
+    // Validação do email
+    if (formData.email !== formData.confirmEmail) {
+      setErro('Os endereços de email não coincidem.');
+      return;
+    }
+
+    setLoading(true);
+    setErro('');
+
+    try {
+      const payload = {
+        client_email: formData.email,
+        client_number: formData.telemovel,
+        nome: formData.nome, 
+        morada: formData.morada,
+        items: cartItems.map(item => ({
+          id: item.id,
+          quantidade: item.quantidade
+        }))
+      };
+
+      const response = await apiCRUD.create('/encomendas', payload);
+
+      // Guardar Histórico Local
+      const novaEncomenda = {
+        codigo: response.order_code,
+        data: new Date().toISOString(),
+        itens: [...cartItems],
+        total: cartTotal,
+        metodoPagamento: metodoPagamento,
+      };
+
+      const encomendasGuardadas = JSON.parse(localStorage.getItem('mercearia_encomendas') || '[]');
+      localStorage.setItem('mercearia_encomendas', JSON.stringify([novaEncomenda, ...encomendasGuardadas]));
+
+      clearCart();
+      
+      // Navegar para a página de Sucesso com o código
+      navigate('/loja/sucesso', { state: { orderCode: response.order_code } });
+
+    } catch (error) {
+      console.error('Erro na encomenda:', error);
+      setErro('Ocorreu um erro ao registar a sua encomenda. Tente novamente.');
+    } finally {
+      setLoading(false);
+    }
+  };
+
   if (cartItems.length === 0) {
     return (
       <div className="max-w-7xl mx-auto px-4 py-32 text-center">
@@ -29,24 +100,29 @@ export default function Checkout() {
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
       <h1 className="text-3xl font-bold text-gray-900 mb-8">Finalizar Encomenda</h1>
 
+      {erro && (
+        <div className="mb-6 p-4 bg-red-50 border border-red-200 text-red-600 rounded-xl font-medium">
+          {erro}
+        </div>
+      )}
+
       <div className="flex flex-col lg:flex-row gap-8">
         
-        {/* Formulário de Dados e Pagamento */}
         <div className="flex-1 space-y-8">
           
-          {/* Dados de Entrega */}
           <div className="bg-white border border-gray-100 rounded-2xl p-6 shadow-sm">
-            <h2 className="text-xl font-bold text-gray-900 mb-4">Dados de Entrega</h2>
+            <h2 className="text-xl font-bold text-gray-900 mb-4">Dados do Cliente</h2>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <input type="text" placeholder="Nome Completo" className="w-full border border-gray-200 rounded-lg p-3 focus:outline-none focus:border-green-500 focus:ring-1 focus:ring-green-500" />
-              <input type="email" placeholder="Email" className="w-full border border-gray-200 rounded-lg p-3 focus:outline-none focus:border-green-500 focus:ring-1 focus:ring-green-500" />
-              <input type="text" placeholder="Morada" className="w-full md:col-span-2 border border-gray-200 rounded-lg p-3 focus:outline-none focus:border-green-500 focus:ring-1 focus:ring-green-500" />
-              <input type="text" placeholder="Código Postal" className="w-full border border-gray-200 rounded-lg p-3 focus:outline-none focus:border-green-500 focus:ring-1 focus:ring-green-500" />
-              <input type="text" placeholder="Localidade" className="w-full border border-gray-200 rounded-lg p-3 focus:outline-none focus:border-green-500 focus:ring-1 focus:ring-green-500" />
+              <input type="text" name="nome" value={formData.nome} onChange={handleInputChange} placeholder="Nome Completo" className="w-full md:col-span-2 border border-gray-200 rounded-lg p-3 focus:outline-none focus:border-green-500 focus:ring-1 focus:ring-green-500" />
+              <input type="email" name="email" value={formData.email} onChange={handleInputChange} placeholder="Email *" className="w-full border border-gray-200 rounded-lg p-3 focus:outline-none focus:border-green-500 focus:ring-1 focus:ring-green-500" required />
+              <input type="email" name="confirmEmail" value={formData.confirmEmail} onChange={handleInputChange} placeholder="Confirmar Email *" className="w-full border border-gray-200 rounded-lg p-3 focus:outline-none focus:border-green-500 focus:ring-1 focus:ring-green-500" required />
+              <input type="text" name="telemovel" value={formData.telemovel} onChange={handleInputChange} placeholder="Telemóvel *" className="w-full md:col-span-2 border border-gray-200 rounded-lg p-3 focus:outline-none focus:border-green-500 focus:ring-1 focus:ring-green-500" required />
+              <input type="text" name="morada" value={formData.morada} onChange={handleInputChange} placeholder="Morada (Faturação)" className="w-full md:col-span-2 border border-gray-200 rounded-lg p-3 focus:outline-none focus:border-green-500 focus:ring-1 focus:ring-green-500" />
+              <input type="text" name="codigoPostal" value={formData.codigoPostal} onChange={handleInputChange} placeholder="Código Postal" className="w-full border border-gray-200 rounded-lg p-3 focus:outline-none focus:border-green-500 focus:ring-1 focus:ring-green-500" />
+              <input type="text" name="localidade" value={formData.localidade} onChange={handleInputChange} placeholder="Localidade" className="w-full border border-gray-200 rounded-lg p-3 focus:outline-none focus:border-green-500 focus:ring-1 focus:ring-green-500" />
             </div>
           </div>
 
-          {/* Método de Pagamento */}
           <div className="bg-white border border-gray-100 rounded-2xl p-6 shadow-sm">
             <h2 className="text-xl font-bold text-gray-900 mb-4">Método de Pagamento</h2>
             <div className="space-y-3">
@@ -74,7 +150,6 @@ export default function Checkout() {
 
             </div>
 
-            {/* Instruções extra baseadas na seleção */}
             {metodoPagamento === 'mbway' && <p className="mt-4 text-sm text-gray-600">Irá receber uma notificação no seu telemóvel para aprovar o pagamento.</p>}
             {metodoPagamento === 'multibanco' && <p className="mt-4 text-sm text-gray-600">A entidade e referência serão geradas após confirmar a encomenda.</p>}
             {metodoPagamento === 'loja' && <p className="mt-4 text-sm text-gray-600">A sua encomenda ficará reservada por 24 horas para levantamento.</p>}
@@ -82,12 +157,10 @@ export default function Checkout() {
           </div>
         </div>
 
-        {/* Resumo da Encomenda */}
         <div className="w-full lg:w-96 shrink-0">
           <div className="bg-white border border-gray-100 rounded-2xl p-6 shadow-sm sticky top-24">
             <h2 className="text-xl font-bold text-gray-900 mb-6">Resumo</h2>
             
-            {/* LISTA DINÂMICA DE PRODUTOS */}
             <div className="space-y-4 mb-6 max-h-[300px] overflow-y-auto pr-2 custom-scrollbar">
               {cartItems.map(item => {
                 const divisor = item.unit_type === 'kg' ? 1000 : 1;
@@ -114,7 +187,7 @@ export default function Checkout() {
                 <span>{formatarValor(cartTotal)}€</span>
               </div>
               <div className="flex justify-between text-gray-600">
-                <span>Entrega</span>
+                <span>Levantamento na Loja</span>
                 <span className="text-green-600 font-medium">Grátis</span>
               </div>
             </div>
@@ -124,8 +197,12 @@ export default function Checkout() {
               <span className="text-2xl font-black text-green-600">{formatarValor(cartTotal)}€</span>
             </div>
 
-            <button className="w-full bg-green-600 hover:bg-green-700 text-white font-bold py-4 rounded-xl transition-colors shadow-sm text-lg">
-              Confirmar e Pagar
+            <button 
+              onClick={handleFinalizarEncomenda}
+              disabled={loading}
+              className="w-full bg-green-600 hover:bg-green-700 disabled:bg-gray-400 text-white font-bold py-4 rounded-xl transition-colors shadow-sm text-lg flex justify-center items-center"
+            >
+              {loading ? 'A processar...' : 'Confirmar e Pagar'}
             </button>
             
             <div className="mt-4 text-center">

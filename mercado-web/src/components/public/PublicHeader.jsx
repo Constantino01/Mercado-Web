@@ -43,6 +43,11 @@ export default function PublicHeader() {
                             <nav className="flex items-center gap-6 text-sm font-medium text-gray-600">
                                 <Link to="/loja/catalogo" className="hover:text-green-600 transition">Catálogo</Link>
                                 <Link to="/loja/promocoes" className="hover:text-green-600 transition text-red-600">Promoções</Link>
+                                {/* NOVO LINK: Histórico (Desktop) */}
+                                <Link to="/loja/historico" className="hover:text-green-600 transition flex items-center gap-1">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line><polyline points="10 9 9 9 8 9"></polyline></svg>
+                                    As Minhas Encomendas
+                                </Link>
                             </nav>
 
                             <div className="h-6 w-px bg-gray-200"></div>
@@ -71,12 +76,16 @@ export default function PublicHeader() {
                 </div>
                 
                 {/* MENU RÁPIDO MOBILE */}
-                <div className="md:hidden flex items-center gap-4 mt-2 overflow-x-auto pb-1 text-sm font-medium text-gray-600 no-scrollbar">
-                    <Link to="/loja/catalogo" className="whitespace-nowrap px-3 py-1 bg-gray-50 rounded-full border border-gray-200">
+                <div className="md:hidden flex items-center gap-3 mt-2 overflow-x-auto pb-2 text-sm font-medium text-gray-600 no-scrollbar">
+                    <Link to="/loja/catalogo" className="whitespace-nowrap px-3 py-1.5 bg-gray-50 hover:bg-gray-100 rounded-full border border-gray-200 transition-colors">
                         📦 Catálogo
                     </Link>
-                    <Link to="/loja/promocoes" className="whitespace-nowrap px-3 py-1 bg-red-50 text-red-700 rounded-full border border-red-200">
+                    <Link to="/loja/promocoes" className="whitespace-nowrap px-3 py-1.5 bg-red-50 text-red-700 hover:bg-red-100 rounded-full border border-red-200 transition-colors">
                         🏷️ Promoções
+                    </Link>
+                    {/* NOVO LINK: Histórico (Mobile) */}
+                    <Link to="/loja/historico" className="whitespace-nowrap px-3 py-1.5 bg-gray-50 hover:bg-gray-100 rounded-full border border-gray-200 transition-colors">
+                        📜 Encomendas
                     </Link>
                 </div>
 
