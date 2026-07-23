@@ -1,5 +1,8 @@
 # React + Vite
 
+PDF Explaining The Vision: [mercado.pdf](https://github.com/user-attachments/files/30326636/mercado.pdf)
+Video Showing The Final Version: https://drive.google.com/file/d/1sZZ-O2c9e3hwPU1Vs1T6KcoopD_9uo8Q/view?usp=sharing
+
 This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
 
 Currently, two official plugins are available:
