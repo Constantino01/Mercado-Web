@@ -1,0 +1,18 @@
+This app is pretty much one half of the system I made for a small grocery shop.
+They wanted a nice looking website, capable of showing their items in a dynamic way, schedualing discounts, etc..
+The idea was to create a Web App to be used in whatever divice, as well as an API written in Laravel which would act as the unique source of truth for the whole system.
+It included a way for people to do their shopping online whithout the need to log in, involving a simple purchase which would be stored in the system.
+A code would be generated and, for the client, stored in browser and sent via email. 
+In the admin dashboard the owners could see the purchase and get it ready, the client would only have to go to the store and just pick it up.
+Or the owners could deliver. The system is intetionally made to let them choose what they want, including if they want to disable purchasing.
+Its an app for a small store, so this bigger luxuries can be taken without any troubble to great benefit. These luxuries also included no log in required for the clients.
+All purchases would be tracked via the browser history and trough the emails sent.
+The system used external APIs, namely Amazon's SES (for sending emails) and AWS (for storing images and backups)
+All details will be included in the following .pfd and .mp4 files. The former was a quick way to show them my initial vision, and the latter the final product, which only
+missed the implementation with a VPS and payments API.
+The app was finished and worked perfectly, even though i am not 100% sure i lost the final version, it serves as a testament for the work I did, and also 
+as a way to show my work.
+It was a really nice challenge, I decided to take a shot at using new and really powerfull tools to make something really cool.
+
+PDF Explaining The Vision: [mercado.pdf](https://github.com/user-attachments/files/30326636/mercado.pdf)
+Video Showing The Final Version: https://drive.google.com/file/d/1sZZ-O2c9e3hwPU1Vs1T6KcoopD_9uo8Q/view?usp=sharing
